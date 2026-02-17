@@ -1,0 +1,77 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+install.packages("openxlsx")
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(openxlsx)
+library(lubridate)
+library(janitor)
+```
+
+```{r}
+data_2021 <- read_csv("/Users/vopara/Downloads/school_data_2021.csv")
+data_2022 <- read_csv("/Users/vopara/Downloads/school_data_2022.csv")
+data_2023 <- read_csv("/Users/vopara/Downloads/school_data_2023.csv")
+data_2024 <- read_csv("/Users/vopara/Downloads/school_data_2024.csv")
+data_2025 <- read_csv("/Users/vopara/Downloads/school_data_2025.csv")
+```
+```{r}
+data_2021 <-data_2021 |> clean_names()
+data_2022 <-data_2022 |> clean_names()
+data_2023 <-data_2023 |> clean_names()
+data_2024 <-data_2024 |> clean_names()
+data_2025 <-data_2025 |> clean_names()
+```
+
+```{r}
+data_2021 <-data_2021 |> mutate(year = 2021)
+data_2022 <-data_2022 |> mutate(year = 2022)
+data_2023 <-data_2023 |> mutate(year = 2023)
+data_2024 <-data_2024 |> mutate(year = 2024)
+data_2025 <-data_2025 |> mutate(year = 2025)
+
+data_2021 <- data_2021 |>
+  rename(local_education_agency = local_school_system)
+
+```
+
+```{r}
+data_2021 <-data_2021 |> slice(-1)
+data_2022 <-data_2022 |> slice(-1)
+data_2023 <-data_2023 |> slice(-1)
+data_2024 <-data_2024 |> slice(-1)
+data_2025 <-data_2025 |> slice(-1)
+```
+
+
+```{r}
+all_years <- bind_rows(
+data_2021, data_2022, data_2023, data_2024, data_2025
+)
+
+weapons_trends <- all_years |>
+  group_by(local_education_agency, year) |>
+  summarize(total = sum(weapons, na.rm = TRUE))
+```
+
+```{r}
+getwd()
+```
+
