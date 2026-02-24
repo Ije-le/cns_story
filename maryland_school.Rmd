@@ -23,6 +23,8 @@ library(readxl)
 library(openxlsx)
 library(lubridate)
 library(janitor)
+library(ggplot2)
+library(ggrepel)
 ```
 
 ```{r}
@@ -70,8 +72,61 @@ weapons_trends <- all_years |>
   group_by(local_education_agency, year) |>
   summarize(total = sum(weapons, na.rm = TRUE))
 ```
+```{r}
+weapons_and_ai <- cleaned_trends|>
+  mutate(ai_year = case_when(
+    local_education_agency == "Baltimore" ~ 2023,
+    local_education_agency == "Baltimore City" ~ 2024,
+    local_education_agency == "Charles" ~ 2023,
+    local_education_agency == "Harford" ~ 2025,
+    local_education_agency == "Prince George's" ~ 2023,
+    local_education_agency == "Montgomery" ~ 2026,
+    TRUE ~ NA_real_
+  ),
+ ai_period = case_when(
+      is.na(ai_year) ~ "No AI",
+      year < ai_year ~ "Before AI",
+      year >= ai_year ~ "After AI"
+  )
+  )
+  
+```
+
 
 ```{r}
-getwd()
+cleaned_trends <- weapons_trends |>
+  filter(local_education_agency != "Allegany")
+
+ggplot(cleaned_trends,
+       aes(x = year,
+           y = total,
+           group = local_education_agency,
+           color = local_education_agency,
+           scale_color_brewer(palette = "Dark 2"))) +
+  geom_line() +
+  #geom_text_repel(
+  #  data = cleaned_trends,
+  #  aes(label = local_education_agency),
+   # size = 4,
+   # nudge_x = 1,    
+   # direction = "y",
+   # hjust = 0  )+
+  labs(
+    title = "Weapon-Related Suspensions in Maryland School Between 2021 and 2025",
+    x = "Year",
+    y = "Number of Weapon-Related Suspensions",
+    color = "LEA"
+  )
+```
+```{r}
+ggplot(cleaned_trends,
+       aes(x = year, y = total)) +
+  geom_line() +
+  facet_wrap(~local_education_agency, scales = "free_x") +
+  labs(
+    title = "Weapon-Related Suspensions in Maryland School Between 2021 and 2025",
+    x = "Year",
+    y = "Number of Weapon-Related Suspensions",
+  )
 ```
 
